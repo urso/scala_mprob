@@ -140,8 +140,22 @@ class Distribution[A](private var map:scala.collection.Map[A,Double])
     }
 
     def flatten[B] = Distribution.flatten(this.asInstanceOf[Distribution[Distribution[B]]])
-}
 
+    def distance(d2:Distribution[A]) : Double = {
+      val keys = new mutable.HashSet[A]
+      keys ++= (map.keys ++ d2.map.keys)
+      keys.foldLeft(0.0) { (sum, k) => 
+        val tmp = this.probability(k) - d2.probability(k)
+        sum + tmp * tmp
+      }
+    }
+
+    def adjustProbabilisticMinimum(newMin:Double = 0.01) = {
+      new Distribution[A](map.mapValues { p:Double => 
+        if (p > newMin) p else newMin
+      })
+    }
+}
 
 object Distribution {
     import Utils._
