@@ -14,6 +14,8 @@ package probability
  */
 class Distribution[A](private var map:scala.collection.Map[A,Double]) 
 {
+    import scala.collection._
+
     normalizeProbabilities
 
     private lazy val randomGenerator = new scala.util.Random
@@ -37,7 +39,7 @@ class Distribution[A](private var map:scala.collection.Map[A,Double])
      * @param value event to find probability for
      * @return the probability [0, 1]
      */
-    def probability(value : A) = map.getOrElse(value, 0)
+    def probability(value : A) : Double = map.getOrElse(value, 0)
 
     /**
      * finds the most probable event in distribution and returns
@@ -189,5 +191,6 @@ object Distribution {
     }
 
     def flatten[B](d:Distribution[Distribution[B]]) = d.dep[B]( x => x)
+
 }
 
