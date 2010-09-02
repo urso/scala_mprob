@@ -205,6 +205,5 @@ object Distribution {
     }
 
     def flatten[B](d:Distribution[Distribution[B]]) = d.dep[B]( x => x)
-
 }
 

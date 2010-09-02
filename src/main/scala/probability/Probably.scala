@@ -6,7 +6,7 @@ package probability
  */
 object Probability {
     import Utils._
-    import Math._
+    import scala.math._
 
     /**
      * creates a new uniformly distributed discrete probability distribution
