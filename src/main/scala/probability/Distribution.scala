@@ -20,15 +20,12 @@ class Distribution[A](private var map:scala.collection.Map[A,Double])
 
     private lazy val randomGenerator = new scala.util.Random
 
-    //def elements = map.elements
     /**
      * returns a new iterator
      */
     def iterator = map.iterator
 
     private def normalizeProbabilities = {
-        //val sum = map.values.reduceLeft{ _ + _ }
-        //if (sum != 1.0) map = map.mapElements { _ / sum }
         var sum = map.valuesIterator.reduceLeft{ _ + _ }
         if (sum != 1.0) map = map.mapValues { _ / sum }
     }
@@ -54,7 +51,7 @@ class Distribution[A](private var map:scala.collection.Map[A,Double])
 
     /**
      * returns a randomly chosen value and its probability from distribution.
-     * The probability a value is returned depends on its probability in the
+     * The probability a value returned depends on its probability in the
      * distribution.
      *
      * @return value and probability of randomly selected value
