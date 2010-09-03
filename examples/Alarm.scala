@@ -11,7 +11,7 @@ object Alarm {
 
     case class State(b:Bulgary, e:Earthquake, a:Alarm, j:John, m:Mary) 
 
-    def mkProb[A](p:Double, mk: Boolean => A) = choose(p, mk(true), mk(false))
+    def mkProb[A](p:Double, mk: Boolean => A) = flip(p, mk(true), mk(false))
 
     val pBulgary : Distribution[Bulgary] = mkProb(0.001, Bulgary)
 
@@ -39,9 +39,24 @@ object Alarm {
             single(mkState(b,e,a,j,m))
     }}}}}
 
-    def main(args:Array[String]) =
+    // using for comprehension:
+
+    def PJointFor[A]( mkState: (Bulgary, Earthquake, Alarm, John, Mary) => A) =
+      for( b <- pBulgary;
+           e <- pEarthquake;
+           a <- alarm(b,e);
+           j <- john(a);
+           m <- mary(a))
+       yield (mkState(b,e,a,j,m))
+
+    def main(args:Array[String]) = {
         println(PJoint(State).filter { s:State =>
             !s.e.s && s.j.s && s.m.s && s.a.s
         })
+
+        println(PJointFor(State).filter { s:State =>
+            !s.e.s && s.j.s && s.m.s && s.a.s
+        })
+    }
 }
 

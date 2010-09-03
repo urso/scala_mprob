@@ -1,7 +1,6 @@
 
 object MontyHall {
-    import probability._
-    import Probability._
+    import probability.Probability._
 
     sealed abstract class Door
     object A extends Door { override def toString = "A" }
@@ -12,39 +11,34 @@ object MontyHall {
     object Looser extends Winning { override def toString = "Looser"}
     object Winner extends Winning { override def toString = "Winner"}
 
-    val doors = Array(A,B,C)
+    sealed abstract class Strategie
+    object Stay   extends Strategie { override def toString = "stay" }
+    object Switch extends Strategie { override def toString = "switch" }
 
-    final case class State(prize:Door, chosen:Door, open:Door)
-    
-    val hide : Distribution[Door] = uniform(doors)
-    val choose : Distribution[Door] = uniform(doors)
-    def opened(hidden:Door, chosen:Door) : Distribution[Door] = 
-        uniform( doors.filter {x => x != hidden && x != chosen} )
+    private val doors = List(A,B,C)
 
-    def testWinner(s:State) : Boolean = s.prize == s.chosen
-    def testWinner(d:Distribution[State]) : Distribution[Winning] = d.map {s : State =>
-        if(testWinner(s)) Winner
-        else              Looser
-    }
+    private def selectDoor(s:Strategie, chosen:Door, open:Door) = 
+      s match {
+        case Stay   => single(chosen)
+        case Switch => uniform(doors.filter({x=> x!=chosen && x!=open}))
+      }
 
-    def stay(d:Distribution[State]) = d
+    def experiment(s:Strategie) = 
+        for ( hidden <- uniform(doors); // 1. hide price
+              chosen <- uniform(doors); // 2. let player choose door
+              // 3. open a door
+              open <- uniform(doors.filter{x=> x!=hidden && x!=chosen});
+              // allow player to switch door:
+              chosen <- selectDoor(s, chosen, open))
+          yield(if (chosen == hidden) {
+                    Winner
+                } else {
+                    Looser
+                })
 
-    def switchDoor(d:Distribution[State]) = d.dep { s =>
-            uniform( doors.filter {x => x != s.open && x != s.chosen }.map {door =>
-                new State(s.prize, door, s.open)
-            }
-        )
-    }
-
-    def main(arg:Array[String]) = {
-        val dist = hide.dep { h =>
-                 choose.dep { c =>
-                 opened(h,c).dep { o =>
-                 single(new State(h,c,o))
-             }}}
-        println( "stay:\n" ++ testWinner(stay(dist) ).toString)
-        println( "switch:\n" ++ testWinner(switchDoor(dist)).toString )
-    }
-
+    def main(arg:Array[String]) = 
+        for (strategie <- List(Stay, Switch)) {
+            println(strategie.toString ++ ":\n" ++ experiment(strategie).toString ++ "\n")
+        }
 }
 

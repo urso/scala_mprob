@@ -14,18 +14,18 @@ object DrugTest {
     val PosIfUser = 0.99
     val PosIfClean = 0.01
 
-    val drugTest = choose(0.001, User, Clean).dep { u =>
-        choose(if(u == User) PosIfUser else PosIfClean, Positive, Negative).dep { t =>
-            single((u,t))
-        }
-    }
-
+    val drugTest = 
+        for( u <- flip(0.001, User, Clean);
+             t <- flip(if(u==User) PosIfUser else PosIfClean, Positive, Negative))
+         yield (u,t)
+             
     val drugTest2 = drugTest.filter { ut:(Status, TestResult) =>
         ut._2 == Positive
     }
 
-    def main(args:Array[String]) = 
-        println(drugTest.toString ++ "\n")
-        println(drugTest2.toString ++ "\n")
+    def main(args:Array[String]) = { 
+        println("test1:\n" ++ drugTest.toString ++ "\n")
+        println("test2:\n" ++ drugTest2.toString ++ "\n")
+    }
 }
 
