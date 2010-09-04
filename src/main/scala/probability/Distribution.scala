@@ -95,7 +95,7 @@ class Distribution[A](private var map:scala.collection.Map[A,Double])
      * Using dep more complex probability distributions
      * with dependent and independent values can be generated.
      */
-    def dep[B](f : A => Distribution[B]) =
+    def dep[B](f : A => Distribution[B]) : Distribution[B] =
         Distribution(
           this.iterator.flatMap { d:(A,Double) =>
             f(d._1).iterator.map { d2:(B,Double) =>
@@ -103,7 +103,7 @@ class Distribution[A](private var map:scala.collection.Map[A,Double])
             }
           })
 
-    def flatMap[B](f: A => Distribution[B]) = dep(f)
+    def flatMap[B](f: A => Distribution[B]) : Distribution[B] = dep(f)
 
     /**
      * multiplies 2 independent distributions.
@@ -202,5 +202,6 @@ object Distribution {
     }
 
     def flatten[B](d:Distribution[Distribution[B]]) = d.dep[B]( x => x)
+
 }
 

@@ -1,10 +1,29 @@
 
 package probability
 
+trait ProbabilityLang[Dist[_]] {
+
+    def uniform[A](data:Iterable[A]) : Dist[A]
+
+    def linear[A](data:Iterable[A]) : Dist[A]
+
+    def negExp[A](data:Iterable[A]) : Dist[A]
+
+    def normal[A](data:Iterable[A]) : Dist[A]
+
+    def flip[A](p:Double, a1:A, a2:A) : Dist[A]
+
+    def single[A](a:A) : Dist[A]
+
+    def just[A](a:A)(b:A) : Boolean = a == b
+
+    def oneOf[A](as:A*)(x:A) : Boolean = as.contains(x)
+}
+
 /**
  * convenience functions for Distribution class.
  */
-object Probability {
+object Probability extends ProbabilityLang[Distribution] {
     import Utils._
     import scala.math._
 
@@ -72,10 +91,6 @@ object Probability {
      * (use with normalize on final distribution to do bayesian inference).
      */
     def condition[A](b:Boolean, f : => Distribution[Option[A]]) = if (b) f else single(None)
-
-    def just[A](a:A)(b:A) : Boolean = a == b
-
-    def oneOf[A](as:A*)(x:A) : Boolean = as.contains(x)
 
     /**
      * computes expectation value of the distribution.
